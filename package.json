@@ -1,6 +1,6 @@
 {
   "name": "bb-component-SuperDataProvider",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A Data Provider Component for Budibase",
   "license": "MIT",
   "svelte": "index.js",
