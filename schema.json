@@ -1,0 +1,277 @@
+{
+  "type": "component",
+  "metadata": {},
+  "schema": {
+    "name": "bb-component-SuperDataProvider",
+    "friendlyName": "Super Data Provider",
+    "description": "A Data Provider Component for Budibase",
+    "icon": "DataSettings",
+    "hasChildren": true,
+    "actions": ["RefreshDatasource", "AddDataProviderQueryExtension"],
+    "styles": ["padding", "border", "background"],
+    "context": [
+      {
+        "type": "static",
+        "values": [
+          {
+            "label": "Period",
+            "key": "period",
+            "type": "string"
+          },
+          {
+            "label": "Aggregation",
+            "key": "aggregation",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "values": [
+          {
+            "label": "Rows",
+            "key": "rows",
+            "type": "array"
+          },
+          {
+            "label": "Extra Info",
+            "key": "info",
+            "type": "string"
+          },
+          {
+            "label": "Rows Length",
+            "key": "rowsLength",
+            "type": "number"
+          },
+          {
+            "label": "Schema",
+            "key": "schema",
+            "type": "object"
+          },
+          {
+            "label": "Page Number",
+            "key": "pageNumber",
+            "type": "number"
+          }
+        ]
+      }
+    ],
+
+    "settings": [
+      {
+        "type": "select",
+        "key": "mode",
+        "label": "Mode",
+        "defaultValue": "normal",
+        "options": [
+          { "label": "Normal", "value": "normal" },
+          { "label": "Single Row", "value": "singlerow" },
+          { "label": "Timeseries", "value": "timeseries" }
+        ]
+      },
+      {
+        "type": "dataSource",
+        "key": "dataSource",
+        "label": "Data Source",
+        "required": true
+      },
+      {
+        "type": "filter",
+        "label": "Filtering",
+        "key": "filter",
+        "resetOn": "dataSource"
+      },
+      {
+        "type": "field/sortable",
+        "label": "Sort column",
+        "key": "sortColumn",
+        "placeholder": "None"
+      },
+      {
+        "type": "select",
+        "label": "Sort order",
+        "key": "sortOrder",
+        "options": ["Ascending", "Descending"],
+        "defaultValue": "Ascending"
+      },
+      {
+        "type": "number",
+        "label": "Limit",
+        "key": "limit",
+        "defaultValue": 50
+      },
+      {
+        "type": "select",
+        "key": "pagination",
+        "label": "Pagination",
+        "defaultValue": false,
+        "options": [
+          { "label": "None", "value": false },
+          { "label": "Page Based", "value": "page" },
+          { "label": "DateTime Based", "value": "datetime" }
+        ]
+      },
+      {
+        "type": "select",
+        "key": "paginationPos",
+        "dependsOn": "pagination",
+        "label": "Position",
+        "options": [
+          { "label": "Top", "value": "top" },
+          { "label": "Bottom", "value": "bottom" }
+        ],
+        "defaultValue": "bottom"
+      },
+      {
+        "type": "select",
+        "label": "Data Refresh",
+        "key": "autoRefresh",
+        "placeholder": "Never",
+        "options": [
+          {
+            "label": "Auto",
+            "value": "auto"
+          },
+          {
+            "label": "5 seconds",
+            "value": 5
+          },
+          {
+            "label": "10 seconds",
+            "value": 10
+          },
+          {
+            "label": "30 seconds",
+            "value": 30
+          },
+          {
+            "label": "1 minute",
+            "value": 60
+          },
+          {
+            "label": "5 minutes",
+            "value": 300
+          },
+          {
+            "label": "10 minutes",
+            "value": 600
+          }
+        ]
+      },
+      {
+        "section": true,
+        "name": "Timeseries Settings",
+        "dependsOn": { "setting": "mode", "value": "timeseries" },
+        "settings": [
+          {
+            "type": "field",
+            "key": "tsField",
+            "label": "Timestamp",
+            "required": true,
+            "defaultValue": "timestamp"
+          },
+          {
+            "type": "field",
+            "key": "valueField",
+            "label": "Value Field"
+          }
+        ]
+      },
+      {
+        "section": true,
+        "name": "Aggregated Views",
+        "dependsOn": "timeseries",
+        "settings": [
+          {
+            "type": "boolean",
+            "key": "5m_enabled",
+            "label": "5m Aggregate",
+            "defaultValue": false
+          },
+          {
+            "type": "dataSource",
+            "key": "dataSource_5m",
+            "label": "5m DataSource",
+            "dependsOn": "5m_enabled",
+            "defaultValue": false
+          },
+          {
+            "type": "boolean",
+            "key": "15m_enabled",
+            "label": "15m Aggregate",
+            "defaultValue": false
+          },
+          {
+            "type": "dataSource",
+            "key": "dataSource_15m",
+            "label": "15m DataSource",
+            "dependsOn": "15m_enabled",
+            "defaultValue": false
+          },
+          {
+            "type": "boolean",
+            "key": "30m_enabled",
+            "label": "30m Aggregate",
+            "defaultValue": false
+          },
+          {
+            "type": "dataSource",
+            "key": "dataSource_30m",
+            "label": "30m DataSource",
+            "dependsOn": "30m_enabled",
+            "defaultValue": false
+          },
+          {
+            "type": "boolean",
+            "key": "1h_enabled",
+            "label": "1h Aggregate",
+            "defaultValue": false
+          },
+          {
+            "type": "dataSource",
+            "key": "dataSource_1h",
+            "label": "1h DataSource",
+            "dependsOn": "1h_enabled",
+            "defaultValue": false
+          },
+          {
+            "type": "boolean",
+            "key": "1d_enabled",
+            "label": "1d Aggregate",
+            "defaultValue": false
+          },
+          {
+            "type": "dataSource",
+            "key": "dataSource_1d",
+            "label": "1d DataSource",
+            "defaultValue": false,
+            "dependsOn": "1d_enabled"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "label": "Flex Mode",
+        "showLabel": false,
+        "key": "flex",
+        "showInBar": true,
+        "barStyle": "buttons",
+        "options": [
+          {
+            "label": "Shrink",
+            "value": false,
+            "barIcon": "Minimize",
+            "barTitle": "Shrink container"
+          },
+          {
+            "label": "Grow",
+            "value": true,
+            "barIcon": "Maximize",
+            "barTitle": "Grow container"
+          }
+        ],
+        "defaultValue": false
+      }
+    ]
+  }
+}
