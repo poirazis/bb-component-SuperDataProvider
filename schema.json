@@ -7,7 +7,11 @@
     "description": "A Data Provider Component for Budibase",
     "icon": "DataSettings",
     "hasChildren": true,
-    "actions": ["RefreshDatasource", "AddDataProviderQueryExtension"],
+    "actions": [
+      "RefreshDatasource",
+      "AddDataProviderQueryExtension",
+      "SetDataProviderOffset"
+    ],
     "styles": ["padding", "border", "background"],
     "context": [
       {
@@ -108,7 +112,8 @@
         "options": [
           { "label": "None", "value": false },
           { "label": "Page Based", "value": "page" },
-          { "label": "DateTime Based", "value": "datetime" }
+          { "label": "DateTime Based", "value": "datetime" },
+          { "label": "Limit/Offset Based", "value": "limit-offset" }
         ]
       },
       {
