@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getContext, onDestroy, setContext } from "svelte";
-  import Wizard from "./Wizard.svelte";
   import MetricSelector from "./MetricSelector.svelte";
 
   import type {
@@ -34,9 +33,6 @@
     builderStore,
   } = getContext("sdk");
   const component = getContext("component");
-
-  export let text;
-  export let showFooter;
 
   export let dataSource: ProviderDatasource;
   export let filter: UISearchFilter;
