@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getContext, onDestroy, setContext } from "svelte";
-  import Wizard from "./Wizard.svelte";
   import MetricSelector from "./MetricSelector.svelte";
 
   import type {
@@ -21,7 +20,7 @@
   >;
 
   import PaginationTime from "./PaginationTime.svelte";
-  import { set } from "zod";
+  import PaginationLimitOffset from "./PaginationLimitOffset.svelte";
 
   const {
     styleable,
@@ -34,9 +33,6 @@
     builderStore,
   } = getContext("sdk");
   const component = getContext("component");
-
-  export let text;
-  export let showFooter;
 
   export let dataSource: ProviderDatasource;
   export let filter: UISearchFilter;
@@ -139,6 +135,8 @@
   let selectedChartRefresh = 0.5;
   let selectedDataRefresh = 5;
 
+  let currentOffset = 0;
+
   let timeSeriesOptions = memo({
     labelColumn: tsField,
     valueColumn: [valueField],
@@ -161,6 +159,16 @@
     (param) => param.name == "period"
   );
 
+  $: hasLimitParameter = dataSource?.parameters?.find(
+    (param) => param.name == "limit"
+  );
+
+  $: hasOffsetParameter = dataSource?.parameters?.find(
+    (param) => param.name == "offset"
+  );
+
+  $: supportsLimitOffsetPagination = hasLimitParameter && hasOffsetParameter;
+
   $: showWizard = mode == "timeseries" && !hasPeriodParameter;
 
   let filterStore = memo(filter);
@@ -179,19 +187,11 @@
 
   $: defaultQuery = QueryUtils.buildQuery(filter);
 
-  // We need to manage our lucene query manually as we want to allow components
-  // to extend it
   $: query = extendQuery(defaultQuery, queryExtensions);
   $: fetch = createFetch($dataSourceStore);
-  $: fetch.update({
-    query,
-    sortColumn,
-    sortOrder,
-    limit,
-    paginate,
-  });
+
   $: schema = sanitizeSchema($fetch.schema);
-  $: setUpAutoRefresh(autoRefresh, selectedDataRefresh, $dataSourceStore);
+  $: setUpAutoRefresh(autoRefresh, selectedDataRefresh);
   $: setUpAutoChartRefresh(autoRefresh, selectedChartRefresh);
 
   $: actions = [
@@ -207,6 +207,12 @@
     {
       type: ActionTypes.RemoveDataProviderQueryExtension,
       callback: removeQueryExtension,
+    },
+    {
+      type: ActionTypes.SetDataProviderOffset,
+      callback: (offset: number) => {
+        currentOffset = offset;
+      },
     },
     {
       type: ActionTypes.SetDataProviderSorting,
@@ -254,6 +260,9 @@
       period: selectedPeriod,
       aggregation,
     },
+    // Limit/offset pagination properties
+    currentOffset,
+    supportsLimitOffsetPagination,
   };
 
   $: timeSeriesOptions.set({
@@ -334,19 +343,23 @@
   const setUpAutoRefresh = (autoRefresh: any, selectedDataRefresh: number) => {
     clearInterval(interval);
     if (inBuilder) return;
-    if (autoRefresh != "auto") {
-      interval = setInterval(
-        () => {
-          if (!$fetch?.loading) fetch.refresh();
-        },
-        Math.max(5000, autoRefresh * 1000)
-      );
-    } else if (autoRefresh == "auto" && selectedDataRefresh) {
+    if (autoRefresh === "auto" && selectedDataRefresh) {
       interval = setInterval(
         () => {
           if (!$fetch?.loading) fetch.refresh();
         },
         Math.max(5000, selectedDataRefresh * 1000)
+      );
+    } else if (
+      autoRefresh !== "never" &&
+      autoRefresh !== "auto" &&
+      autoRefresh > 0
+    ) {
+      interval = setInterval(
+        () => {
+          if (!$fetch?.loading) fetch.refresh();
+        },
+        Math.max(5000, autoRefresh * 1000)
       );
     }
   };
@@ -417,6 +430,15 @@
       {periods}
       {paginationPos}
       bind:selectedPeriod
+    />
+  {/if}
+
+  {#if pagination == "limit-offset" && supportsLimitOffsetPagination}
+    <PaginationLimitOffset
+      {limit}
+      bind:currentOffset
+      dataSource={dataSourceStore}
+      {fetch}
     />
   {/if}
 </div>
